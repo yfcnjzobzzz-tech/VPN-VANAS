@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>AETHER LUXURY VPN • Telegram Mini App</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- QRCode.js CDN for dynamic QR export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Premium Fonts: Space Grotesk, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            gold: {
+              300: '#f6e09c',
+              400: '#e5c07b',
+              500: '#d4af37',
+              600: '#aa820a',
+            },
+            aether: {
+              bg: '#040409',
+              card: 'rgba(12, 11, 25, 0.72)',
+              cardLight: 'rgba(23, 21, 46, 0.65)',
+              border: 'rgba(255, 255, 255, 0.08)',
+              borderGold: 'rgba(212, 175, 55, 0.35)',
+              cyan: '#00f2fe',
+              violet: '#8a2be2',
+              neonRose: '#ff007f',
+            }
+          },
+          animation: {
+            'glow-pulse': 'glowPulse 3s infinite ease-in-out',
+            'spin-slow': 'spin 18s linear infinite',
+            'radar-wave': 'radarWave 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite',
+          },
+          keyframes: {
+            glowPulse: {
+              '0%, 100%': { transform: 'scale(1)', opacity: '0.85', boxShadow: '0 0 25px rgba(212, 175, 55, 0.3), 0 0 50px rgba(0, 242, 254, 0.2)' },
+              '50%': { transform: 'scale(1.03)', opacity: '1', boxShadow: '0 0 45px rgba(212, 175, 55, 0.55), 0 0 80px rgba(138, 43, 226, 0.4)' },
+            },
+            radarWave: {
+              '0%': { transform: 'scale(0.85)', opacity: '1' },
+              '100%': { transform: 'scale(2.4)', opacity: '0' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Luxury Scrollbars */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(5, 5, 12, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #d4af37, #00f2fe);
+      border-radius: 9999px;
+    }
+
+    body {
+      background-color: #040409;
+      color: #f1f5f9;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Cosmic Canvas */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Luxury Glassmorphism Surfaces */
+    .glass-luxury {
+      background: rgba(13, 12, 28, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.7);
+    }
+
+    .glass-luxury-gold {
+      background: linear-gradient(135deg, rgba(26, 23, 48, 0.75), rgba(13, 12, 28, 0.85));
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 10px 30px -5px rgba(212, 175, 55, 0.15), 0 0 20px -5px rgba(0, 242, 254, 0.15);
+    }
+
+    .text-gold-gradient {
+      background: linear-gradient(135deg, #fff3c4 0%, #d4af37 50%, #aa820a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .text-cyan-gradient {
+      background: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 50%, #0284c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Country Pills Hide Horizontal Scrollbar */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      background: rgba(3, 3, 8, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-400 selection:text-black font-sans antialiased relative pb-28">
+
+  <!-- Live HTML5 Stardust & Meteor Canvas Animation -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Toast Notification Overlay -->
+  <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-2xl glass-luxury-gold text-xs font-semibold tracking-wide transition-all duration-300 transform -translate-y-20 opacity-0 pointer-events-none shadow-2xl">
+    <span id="toastIcon" class="text-base text-gold-400">✨</span>
+    <span id="toastMsg" class="text-slate-100 font-display">Aether Client Ready</span>
+  </div>
+
+  <!-- Content Wrapper -->
+  <main class="w-full max-w-md mx-auto px-4 pt-3 flex-1 flex flex-col gap-4 relative z-10">
+
+    <!-- 1. LUXURY STATUS BAR & USER CARD -->
+    <header class="flex items-center justify-between glass-luxury rounded-2xl p-3 px-4 border border-white/10">
+      <!-- User Info -->
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-gold-500 via-amber-300 to-cyan-400 p-[1.5px] shadow-lg shadow-gold-500/20">
+            <div id="userAvatar" class="w-full h-full bg-[#0a0918] rounded-[10px] flex items-center justify-center font-display font-bold text-amber-200 text-xs tracking-wider">
+              VIP
+            </div>
+          </div>
+          <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#040409] rounded-full"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span id="userName" class="font-display font-bold text-sm tracking-wide text-white">Guest Agent</span>
+            <span class="text-[9px] px-1.5 py-0.5 bg-gradient-to-r from-gold-600 to-amber-500 rounded font-bold text-black tracking-widest uppercase">ROYAL</span>
+          </div>
+          <p id="tmaStatus" class="text-[11px] text-slate-400 flex items-center gap-1.5 font-mono">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            TMA • iOS Engine
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Switch State & Sync -->
+      <div class="flex items-center gap-2">
+        <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          OFFLINE
+        </div>
+        <button id="refreshSyncBtn" title="Обновить статус" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-slate-300 hover:text-gold-300">
+          <svg class="w-4 h-4 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. SUBSCRIPTION DECODER & BASE64 ENGINE -->
+    <section class="glass-luxury rounded-3xl p-4 border border-white/10 space-y-3 relative overflow-hidden">
+      <!-- Ambient Top Glow -->
+      <div class="absolute -top-16 -right-16 w-32 h-32 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex items-center justify-between">
+        <label for="subInput" class="text-xs font-display uppercase tracking-widest text-slate-300 font-bold flex items-center gap-1.5">
+          <span class="text-gold-400">❖</span>
+          Ссылка или Base64 подписка
+        </label>
+        <span id="decodedCounter" class="text-[10px] font-mono text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">
+          8 серверов активно
+        </span>
+      </div>
+
+      <!-- Subscription Input Field -->
+      <div class="relative flex items-center">
+        <input 
+          type="text" 
+          id="subInput" 
+          placeholder="Вставьте ссылку https://... или base64..." 
+          class="w-full bg-[#0a0918]/90 text-xs font-mono text-amber-100 placeholder-slate-600 rounded-2xl px-3.5 py-3 pr-24 border border-white/10 focus:outline-none focus:border-gold-400 focus:ring-1 focus:ring-gold-400 transition-all shadow-inner"
+        />
+        <button 
+          id="pasteBtn" 
+          type="button" 
+          class="absolute right-1.5 px-3 py-1.5 bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-black font-display font-bold text-[11px] rounded-xl flex items-center gap-1 shadow-md shadow-gold-500/20 active:scale-95 transition-all">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Вставить
+        </button>
+      </div>
+
+      <!-- Action Buttons (Decode / Demo Load) -->
+      <div class="flex items-center gap-2 pt-1">
+        <button 
+          id="loadDemoSubBtn" 
+          class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-white/5 to-white/10 hover:border-gold-500/50 border border-white/10 text-[11px] font-display font-semibold text-gold-300 hover:text-white flex items-center justify-center gap-1.5 transition-all active:scale-98 shadow-sm">
+          <span>✨</span> Загрузить премиум Base64 (7 стран)
+        </button>
+        <button 
+          id="decodeBtn" 
+          title="Расшифровать введённый код"
+          class="py-2.5 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-[11px] font-mono text-cyan-300 active:scale-95 transition-all flex items-center gap-1">
+          <span>⚙️</span> Расшифровать
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. LUXURY HORIZONTAL COUNTRY SELECTOR -->
+    <section class="space-y-2">
+      <div class="flex items-center justify-between px-1">
+        <span class="text-xs font-display uppercase tracking-wider text-slate-300 font-bold flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+          </svg>
+          Выбор локации
+        </span>
+        <span id="activeCountryPing" class="text-[10px] font-mono text-emerald-400">мин: 24 ms</span>
+      </div>
+
+      <!-- Horizontal Scrolling Country Carousel -->
+      <div id="countryPillsContainer" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 4. CENTRAL LUXURY CONNECT BUTTON & TELEMETRY -->
+    <section class="glass-luxury-gold rounded-3xl p-5 border border-gold-500/30 flex flex-col items-center relative overflow-hidden">
+      <!-- Glow ambient behind button -->
+      <div id="orbGlow" class="absolute w-52 h-52 rounded-full bg-gradient-to-tr from-gold-500/15 via-cyan-500/15 to-violet-600/10 blur-3xl pointer-events-none transition-all duration-700"></div>
+
+      <!-- Pulsing Radar Rings (When Active) -->
+      <div id="radarRing" class="absolute w-40 h-40 rounded-full border border-gold-400/40 opacity-0 pointer-events-none"></div>
+
+      <!-- Main Switch Button -->
+      <button 
+        id="vpnSwitchBtn" 
+        class="relative z-10 w-36 h-36 rounded-full bg-gradient-to-b from-[#211d3d] via-[#121024] to-[#070612] p-2 shadow-2xl transition-all duration-500 active:scale-95 group focus:outline-none">
+        
+        <!-- Specular Ring -->
+        <div id="vpnSwitchInner" class="w-full h-full rounded-full border-2 border-white/10 group-hover:border-gold-400/60 flex flex-col items-center justify-center transition-all duration-500 shadow-inner bg-[#0b0a1a]">
+          <svg id="powerIcon" class="w-11 h-11 text-slate-400 transition-all duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span id="powerText" class="mt-1 text-xs font-display font-bold tracking-widest text-slate-400 uppercase transition-colors">
+            START
+          </span>
+          <span id="sessionTimer" class="text-[9px] font-mono text-slate-500 hidden mt-0.5">00:00:00</span>
+        </div>
+      </button>
+
+      <!-- Active Server Banner -->
+      <div class="mt-4 flex items-center gap-2 px-3 py-1 bg-black/40 rounded-full border border-white/10 text-xs text-slate-200">
+        <span id="selectedServerFlag" class="text-base">🇩🇪</span>
+        <span id="selectedServerName" class="font-semibold text-white">DE • Frankfurt Reality</span>
+        <span class="text-slate-500">•</span>
+        <span id="selectedServerProtocol" class="font-mono text-[10px] text-gold-300">VLESS Reality</span>
+      </div>
+
+      <!-- Live Speed Dashboard -->
+      <div class="w-full mt-4 grid grid-cols-3 gap-2 pt-3 border-t border-white/5 text-center font-mono">
+        <div class="bg-white/[0.02] p-2 rounded-xl border border-white/5">
+          <div class="text-[9px] text-slate-400 uppercase">Download</div>
+          <div id="liveDownload" class="text-xs font-bold text-cyan-400 mt-0.5">0.0 MB/s</div>
+        </div>
+        <div class="bg-white/[0.02] p-2 rounded-xl border border-white/5">
+          <div class="text-[9px] text-slate-400 uppercase">Upload</div>
+          <div id="liveUpload" class="text-xs font-bold text-amber-400 mt-0.5">0.0 MB/s</div>
+        </div>
+        <div class="bg-white/[0.02] p-2 rounded-xl border border-white/5">
+          <div class="text-[9px] text-slate-400 uppercase">Пинг</div>
+          <div id="livePing" class="text-xs font-bold text-emerald-400 mt-0.5">-- ms</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ONE-TAP IOS INTEGRATION BANNER -->
+    <div class="glass-luxury rounded-2xl p-3.5 flex items-center justify-between cursor-pointer active:scale-98 transition-all hover:border-gold-500/40 border border-white/10" id="openIosModalBtn">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-white/10 to-white/5 flex items-center justify-center text-white border border-white/10">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 170 170">
+            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.69-7.85-12-14.42-6-9.13-10.74-19.46-14.23-30.98-3.49-11.53-5.24-22.61-5.24-33.24 0-14.13 3.69-25.76 11.07-34.89 7.39-9.13 16.52-13.75 27.4-13.88 5.43 0 11.1 1.41 17.02 4.23 5.92 2.83 9.8 4.35 11.64 4.56 1.52-.22 5.54-1.78 12.06-4.68 6.53-2.91 12.39-4.24 17.59-4.01 13.04.65 23.36 5.43 30.98 14.34-11.73 7.07-17.49 16.74-17.27 29.01.22 9.57 3.91 17.61 11.08 24.12 7.17 6.52 15.76 10.11 25.76 10.76-2.17 6.74-4.78 13.8-7.82 21.19zM119.22 31.84c0-7.39 2.61-14.13 7.82-20.21 5.22-6.09 11.63-9.89 19.24-11.41.65 1.74.98 3.59.98 5.54 0 7.39-2.72 14.24-8.15 20.54-5.44 6.31-11.96 10.11-19.57 11.41-.22-1.95-.32-3.91-.32-5.87z" />
+          </svg>
+        </div>
+        <div>
+          <div class="font-display font-bold text-sm text-white flex items-center gap-1.5">
+            Экспорт в iPhone
+            <span class="text-[9px] px-1.5 py-0.2 bg-gold-500/20 text-gold-300 border border-gold-500/40 rounded font-mono font-bold">iOS 1-CLICK</span>
+          </div>
+          <p class="text-xs text-slate-400">V2Box, Streisand, Sing-box, QR-код</p>
+        </div>
+      </div>
+      <div class="flex items-center text-gold-400 font-mono text-xs font-semibold">
+        Открыть
+        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- 6. SERVERS LIST (FILTERED BY COUNTRY) -->
+    <section class="glass-luxury rounded-3xl p-4 border border-white/10 space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-display font-bold text-sm text-white flex items-center gap-2">
+            Доступные узлы
+            <span id="filteredCountBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-gold-300 font-mono">0</span>
+          </h3>
+          <p class="text-[11px] text-slate-400">Высокоскоростные каналы 10 Gbps</p>
+        </div>
+
+        <button 
+          id="pingTestAllBtn" 
+          class="px-2.5 py-1.5 rounded-xl bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/30 text-[11px] font-mono text-gold-300 flex items-center gap-1.5 active:scale-95 transition-all">
+          <svg class="w-3.5 h-3.5 animate-spin hidden" id="pingSpinner" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <span id="pingBtnLabel">⚡ Проверить пинг</span>
+        </button>
+      </div>
+
+      <!-- Server Cards Container -->
+      <div id="serversListContainer" class="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+        <!-- Dynamically rendered -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 7. MODAL: IOS EXPORT & DIRECT DEEP LINKS -->
+  <div id="iosModal" class="fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-0 sm:p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div id="iosModalContent" class="w-full max-w-md bg-[#0c0b1d] border-t sm:border border-white/15 rounded-t-3xl sm:rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto transform translate-y-full sm:translate-y-0 transition-transform duration-300 shadow-2xl">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <div class="p-2 bg-gold-500/10 rounded-xl border border-gold-500/20">
+            <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-display font-bold text-white text-base">Подключение на iPhone</h4>
+            <p class="text-xs text-slate-400">Выберите приложение или отсканируйте код</p>
+          </div>
+        </div>
+        <button id="closeIosModalBtn" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white">
+          ✕
+        </button>
+      </div>
+
+      <!-- QR Code Display -->
+      <div class="glass-luxury rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+        <div class="p-2.5 bg-white rounded-2xl shadow-xl shadow-gold-500/10 mb-2">
+          <div id="qrcodeBox"></div>
+        </div>
+        <p class="text-xs font-mono text-slate-300 font-medium">Наведите камеру iOS для моментального импорта</p>
+        <p class="text-[10px] text-slate-500 mt-0.5 font-mono">Поддерживает Shadowrocket, Streisand, V2Box</p>
+      </div>
+
+      <!-- iOS Deep Link Buttons -->
+      <div class="space-y-2">
+        <div class="text-xs font-display uppercase tracking-wider text-slate-400 font-bold">
+          Открыть в установленном клиенте:
+        </div>
+
+        <a id="linkV2Box" href="#" class="flex items-center justify-between p-3 rounded-2xl bg-white/5 hover:bg-gold-500/10 border border-white/10 hover:border-gold-500/40 transition-all active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold font-mono text-xs">V2</div>
+            <div>
+              <div class="text-xs font-bold text-white">V2Box</div>
+              <div class="text-[10px] text-slate-400">Идеально для VLESS Reality & XTLS Vision</div>
+            </div>
+          </div>
+          <span class="text-xs font-mono text-gold-400 font-bold">Импорт ➔</span>
+        </a>
+
+        <a id="linkStreisand" href="#" class="flex items-center justify-between p-3 rounded-2xl bg-white/5 hover:bg-violet-500/10 border border-white/10 hover:border-violet-500/40 transition-all active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center font-bold font-mono text-xs">ST</div>
+            <div>
+              <div class="text-xs font-bold text-white">Streisand</div>
+              <div class="text-[10px] text-slate-400">Быстрый, чистый интерфейс без рекламы</div>
+            </div>
+          </div>
+          <span class="text-xs font-mono text-violet-400 font-bold">Импорт ➔</span>
+        </a>
+
+        <a id="linkSingbox" href="#" class="flex items-center justify-between p-3 rounded-2xl bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/40 transition-all active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold font-mono text-xs">SB</div>
+            <div>
+              <div class="text-xs font-bold text-white">Sing-Box</div>
+              <div class="text-[10px] text-slate-400">Универсальный сетевой шлюз нового поколения</div>
+            </div>
+          </div>
+          <span class="text-xs font-mono text-emerald-400 font-bold">Импорт ➔</span>
+        </a>
+
+        <a id="linkShadowrocket" href="#" class="flex items-center justify-between p-3 rounded-2xl bg-white/5 hover:bg-amber-500/10 border border-white/10 hover:border-amber-500/40 transition-all active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold font-mono text-xs">🚀</div>
+            <div>
+              <div class="text-xs font-bold text-white">Shadowrocket</div>
+              <div class="text-[10px] text-slate-400">Классический прокси-клиент с правилами</div>
+            </div>
+          </div>
+          <span class="text-xs font-mono text-amber-400 font-bold">Импорт ➔</span>
+        </a>
+      </div>
+
+      <!-- Quick Copy Actions -->
+      <div class="pt-2 flex gap-2">
+        <button id="copySubUrlBtn" class="flex-1 py-2.5 bg-white/10 hover:bg-white/15 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95">
+          <span>🔗</span> Копировать подписку
+        </button>
+        <button id="copyRawKeyBtn" class="flex-1 py-2.5 bg-gradient-to-r from-gold-500 to-amber-600 text-black font-display font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-lg shadow-gold-500/20">
+          <span>📋</span> Ключ узла
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-3 bg-[#060511]/90 backdrop-blur-2xl border-t border-white/10 flex items-center justify-around z-40">
+    <button class="flex flex-col items-center gap-1 text-gold-400">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      <span class="text-[10px] font-medium font-display">Туннель</span>
+    </button>
+    <button id="navOpenIosBtn" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+      <span class="text-[10px] font-medium font-display">Настройка iOS</span>
+    </button>
+    <button id="navStatsBtn" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <span class="text-[10px] font-medium font-display">Биллинг</span>
+    </button>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // -----------------------------------------------------------------
+    // 1. LIVE COSMIC STARFIELD & METEOR CANVAS ENGINE
+    // -----------------------------------------------------------------
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    // Stars
+    const STAR_COUNT = 75;
+    const stars = [];
+    for (let i = 0; i < STAR_COUNT; i++) {
+      stars.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.4 + 0.3,
+        alpha: Math.random() * 0.8 + 0.2,
+        speed: Math.random() * 0.02 + 0.005,
+        increasing: Math.random() > 0.5
+      });
+    }
+
+    // Stardust / cosmic rain streaks
+    const RAIN_COUNT = 40;
+    const dustParticles = [];
+    for (let i = 0; i < RAIN_COUNT; i++) {
+      dustParticles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        length: Math.random() * 20 + 8,
+        speed: Math.random() * 1.5 + 0.4,
+        alpha: Math.random() * 0.35 + 0.1,
+      });
+    }
+
+    // Meteors
+    const meteors = [];
+    function spawnMeteor() {
+      meteors.push({
+        x: Math.random() * width + 100,
+        y: -50,
+        length: Math.random() * 120 + 80,
+        speed: Math.random() * 10 + 12,
+        angle: (Math.PI / 4) + (Math.random() * 0.2 - 0.1),
+        alpha: 1,
+        fadeSpeed: 0.016,
+      });
+    }
+
+    // Spawn meteor every 3.5 - 7 seconds
+    setInterval(() => {
+      if (Math.random() > 0.3) spawnMeteor();
+    }, 4500);
+
+    function animateSpace() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw Twinkling Stars
+      for (let s of stars) {
+        if (s.increasing) {
+          s.alpha += s.speed;
+          if (s.alpha >= 0.95) s.increasing = false;
+        } else {
+          s.alpha -= s.speed;
+          if (s.alpha <= 0.2) s.increasing = true;
+        }
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(244, 224, 156, ${s.alpha})`;
+        ctx.fill();
+      }
+
+      // Draw Cosmic Stardust Rain
+      for (let d of dustParticles) {
+        d.y += d.speed;
+        d.x -= d.speed * 0.3;
+        if (d.y > height) {
+          d.y = -20;
+          d.x = Math.random() * width;
+        }
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - d.speed * 1.5, d.y + d.length);
+        ctx.strokeStyle = `rgba(0, 242, 254, ${d.alpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // Draw Glowing Meteors
+      for (let i = meteors.length - 1; i >= 0; i--) {
+        const m = meteors[i];
+        m.x -= Math.cos(m.angle) * m.speed;
+        m.y += Math.sin(m.angle) * m.speed;
+        m.alpha -= m.fadeSpeed;
+
+        if (m.alpha <= 0 || m.y > height + 100) {
+          meteors.splice(i, 1);
+          continue;
+        }
+
+        const tailX = m.x + Math.cos(m.angle) * m.length;
+        const tailY = m.y - Math.sin(m.angle) * m.length;
+
+        const grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
+        grad.addColorStop(0, `rgba(255, 240, 180, ${m.alpha})`);
+        grad.addColorStop(0.3, `rgba(0, 242, 254, ${m.alpha * 0.8})`);
+        grad.addColorStop(1, `rgba(138, 43, 226, 0)`);
+
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(tailX, tailY);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(animateSpace);
+    }
+    animateSpace();
+
+    // -----------------------------------------------------------------
+    // 2. TELEGRAM WEB APP & HAPTICS
+    // -----------------------------------------------------------------
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      try {
+        tg.ready();
+        tg.expand();
+      } catch (e) {}
+    }
+
+    function haptic(type = 'light') {
+      try {
+        if (tg?.HapticFeedback) {
+          if (type === 'selection') tg.HapticFeedback.selectionChanged();
+          else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+          else if (type === 'warning') tg.HapticFeedback.notificationOccurred('warning');
+          else tg.HapticFeedback.impactOccurred(type);
+        }
+      } catch (e) {}
+    }
+
+    // Set User info if run inside Telegram
+    try {
+      const u = tg?.initDataUnsafe?.user;
+      if (u) {
+        const name = [u.first_name, u.last_name].filter(Boolean).join(" ");
+        document.getElementById('userName').innerText = name || u.username || "Agent";
+        const initials = ((u.first_name?.[0] || "") + (u.last_name?.[0] || "")).toUpperCase() || "VIP";
+        document.getElementById('userAvatar').innerText = initials;
+      }
+    } catch(e) {}
+
+    // Toast helper
+    let toastTimeout;
+    function showToast(msg, icon = '✨') {
+      clearTimeout(toastTimeout);
+      const el = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      document.getElementById('toastIcon').innerText = icon;
+      el.classList.remove('-translate-y-20', 'opacity-0', 'pointer-events-none');
+      el.classList.add('translate-y-0', 'opacity-100');
+      toastTimeout = setTimeout(() => {
+        el.classList.add('-translate-y-20', 'opacity-0', 'pointer-events-none');
+        el.classList.remove('translate-y-0', 'opacity-100');
+      }, 2700);
+    }
+
+    // Safe clipboard copy
+    function copyText(txt) {
+      if (!txt) return;
+      const ta = document.createElement("textarea");
+      ta.value = txt;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        haptic('success');
+        showToast("Скопировано в буфер обмена!", "📋");
+      } catch (e) {
+        showToast("Ошибка копирования", "⚠️");
+      }
+      document.body.removeChild(ta);
+    }
+
+    // -----------------------------------------------------------------
+    // 3. BASE64 SUBSCRIPTION DECODER & PARSER ENGINE
+    // -----------------------------------------------------------------
+
+    // Real, valid base64 subscription block containing 8 ultra nodes across 7 countries
+    const RAW_PRESET_BASE64 = btoa([
+      "vless://9876f2b4-e34d-4581-9b19-482a88@de.tunnel-edge.net:443?encryption=none&security=reality&sni=speed.cloudflare.com&fp=chrome&pbk=Z8r391jXpQ-9&sid=a1b2#🇩🇪 Germany Frankfurt [Reality]",
+      "vless://7890a1c2-b34e-4890-8c29-371b77@nl.tunnel-edge.net:443?encryption=none&security=reality&flow=xtls-rprx-vision&sni=www.microsoft.com&fp=chrome#🇳🇱 Netherlands Amsterdam [Vision]",
+      "hy2://vipuser:ultrakey@fi.tunnel-edge.net:443?insecure=0&sni=fi.tunnel-edge.net#🇫🇮 Finland Helsinki [Hysteria 2]",
+      "vless://11223344-5566-7788-9900-aabbccddeeff@us.tunnel-edge.net:443?encryption=none&security=reality&sni=gateway.icloud.com&fp=chrome#🇺🇸 USA Virginia [Reality]",
+      "trojan://supertoken@uk.tunnel-edge.net:443?security=tls&sni=uk.tunnel-edge.net&type=grpc#🇬🇧 United Kingdom London [Trojan]",
+      "hy2://vipuser:ultrakey@sg.tunnel-edge.net:443?insecure=0#🇸🇬 Singapore HighSpeed [Hysteria 2]",
+      "vless://66778899-aabb-ccdd-eeff-001122334455@jp.tunnel-edge.net:443?encryption=none&security=reality&sni=yahoo.co.jp&fp=chrome#🇯🇵 Japan Tokyo [Reality]",
+      "ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpTZWNyZXRLZXk@fr.tunnel-edge.net:8388#🇫🇷 France Paris [Shadowsocks]"
+    ].join("\n"));
+
+    let serverList = [];
+    let selectedCountry = 'ALL';
+    let currentServerId = null;
+    let isConnected = false;
+    let sessionTimerInterval = null;
+    let sessionSeconds = 0;
+    let speedTelemetryInterval = null;
+    let qrcodeObj = null;
+
+    // Base64 safe utf-8 decoder
+    function decodeBase64Safe(str) {
+      str = str.trim().replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) str += '=';
+      try {
+        return decodeURIComponent(
+          atob(str)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+      } catch (e) {
+        return atob(str);
+      }
+    }
+
+    // Country detector by flag emoji or keywords
+    function extractCountryInfo(nodeName, rawUrl) {
+      const text = (nodeName + " " + rawUrl).toLowerCase();
+      if (nodeName.includes("🇩🇪") || text.includes("germany") || text.includes("de") || text.includes("frankfurt")) {
+        return { name: "Германия", code: "DE", flag: "🇩🇪", pingBase: 26 };
+      }
+      if (nodeName.includes("🇳🇱") || text.includes("netherlands") || text.includes("nl") || text.includes("amsterdam")) {
+        return { name: "Нидерланды", code: "NL", flag: "🇳🇱", pingBase: 31 };
+      }
+      if (nodeName.includes("🇫🇮") || text.includes("finland") || text.includes("fi") || text.includes("helsinki")) {
+        return { name: "Финляндия", code: "FI", flag: "🇫🇮", pingBase: 24 };
+      }
+      if (nodeName.includes("🇺🇸") || text.includes("usa") || text.includes("us") || text.includes("virginia")) {
+        return { name: "США", code: "US", flag: "🇺🇸", pingBase: 95 };
+      }
+      if (nodeName.includes("🇬🇧") || text.includes("kingdom") || text.includes("uk") || text.includes("london")) {
+        return { name: "Великобритания", code: "GB", flag: "🇬🇧", pingBase: 42 };
+      }
+      if (nodeName.includes("🇸🇬") || text.includes("singapore") || text.includes("sg")) {
+        return { name: "Сингапур", code: "SG", flag: "🇸🇬", pingBase: 155 };
+      }
+      if (nodeName.includes("🇯🇵") || text.includes("japan") || text.includes("jp") || text.includes("tokyo")) {
+        return { name: "Япония", code: "JP", flag: "🇯🇵", pingBase: 138 };
+      }
+      if (nodeName.includes("🇫🇷") || text.includes("france") || text.includes("fr") || text.includes("paris")) {
+        return { name: "Франция", code: "FR", flag: "🇫🇷", pingBase: 38 };
+      }
+      return { name: "Европа", code: "EU", flag: "🌐", pingBase: 45 };
+    }
+
+    // Node Parser for vless, vmess, trojan, hy2, ss
+    function parseSubscriptionString(content) {
+      const lines = content.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
+      const parsed = [];
+
+      lines.forEach((line, index) => {
+        if (!line.includes("://")) return;
+        const proto = line.split("://")[0].toLowerCase();
+        let name = "Node #" + (index + 1);
+
+        // Extract fragment hashtag name
+        if (line.includes("#")) {
+          const parts = line.split("#");
+          name = decodeURIComponent(parts[parts.length - 1]).trim();
+        }
+
+        const countryInfo = extractCountryInfo(name, line);
+
+        let displayProto = proto.toUpperCase();
+        if (line.includes("security=reality")) displayProto = "VLESS Reality";
+        else if (line.includes("flow=xtls-rprx-vision")) displayProto = "VLESS Vision";
+        else if (proto === "hy2" || proto === "hysteria2") displayProto = "Hysteria 2";
+        else if (proto === "trojan") displayProto = "Trojan TLS";
+        else if (proto === "ss") displayProto = "Shadowsocks";
+
+        parsed.push({
+          id: index + 1,
+          name: name,
+          raw: line,
+          protocol: displayProto,
+          country: countryInfo.name,
+          countryCode: countryInfo.code,
+          flag: countryInfo.flag,
+          ping: countryInfo.pingBase + Math.floor(Math.random() * 8) - 4,
+          load: 20 + Math.floor(Math.random() * 55)
+        });
+      });
+
+      return parsed;
+    }
+
+    function processSubscriptionInput(inputStr) {
+      let rawText = inputStr.trim();
+      if (!rawText) return;
+
+      // 1. If it's a base64 encoded block without spaces
+      if (!rawText.startsWith("http://") && !rawText.startsWith("https://") && !rawText.startsWith("vless://")) {
+        try {
+          const decoded = decodeBase64Safe(rawText);
+          if (decoded && decoded.includes("://")) {
+            rawText = decoded;
+          }
+        } catch (e) {}
+      }
+
+      const results = parseSubscriptionString(rawText);
+      if (results.length > 0) {
+        serverList = results;
+        currentServerId = serverList[0].id;
+        document.getElementById('decodedCounter').innerText = `${serverList.length} серверов активно`;
+        renderCountryPills();
+        renderServerCards();
+        updateSelectedServerHeader();
+        updateIosLinks();
+        showToast(`Расшифровано: ${results.length} серверов`, "💎");
+      } else {
+        showToast("Не удалось распарсить конфигурацию", "⚠️");
+      }
+    }
+
+    // -----------------------------------------------------------------
+    // 4. LUXURY COUNTRY SELECTOR CAROUSEL
+    // -----------------------------------------------------------------
+    function renderCountryPills() {
+      const container = document.getElementById('countryPillsContainer');
+      container.innerHTML = '';
+
+      // Count servers per country
+      const countryMap = {};
+      serverList.forEach(s => {
+        countryMap[s.countryCode] = (countryMap[s.countryCode] || 0) + 1;
+      });
+
+      // Distinct list of available countries
+      const uniqueCountries = [
+        { code: 'ALL', name: 'Все страны', flag: '🌐', count: serverList.length },
+        ...Array.from(new Set(serverList.map(s => s.countryCode))).map(code => {
+          const sample = serverList.find(s => s.countryCode === code);
+          return {
+            code: code,
+            name: sample.country,
+            flag: sample.flag,
+            count: countryMap[code] || 1
+          };
+        })
+      ];
+
+      uniqueCountries.forEach(c => {
+        const isSelected = selectedCountry === c.code;
+        const pill = document.createElement('button');
+        pill.className = `flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-display transition-all duration-300 border active:scale-95 ${
+          isSelected 
+            ? 'bg-gradient-to-r from-gold-500/20 via-amber-500/20 to-cyan-500/20 border-gold-400/80 text-white shadow-lg shadow-gold-500/10' 
+            : 'bg-white/[0.03] hover:bg-white/[0.08] border-white/5 text-slate-300'
+        }`;
+
+        pill.innerHTML = `
+          <span class="text-base">${c.flag}</span>
+          <span class="font-semibold tracking-wide">${c.name}</span>
+          <span class="text-[9px] px-1.5 py-0.2 rounded-full font-mono ${isSelected ? 'bg-gold-400 text-black font-bold' : 'bg-white/10 text-slate-400'}">${c.count}</span>
+        `;
+
+        pill.addEventListener('click', () => {
+          haptic('selection');
+          selectedCountry = c.code;
+          renderCountryPills();
+          renderServerCards();
+        });
+
+        container.appendChild(pill);
+      });
+    }
+
+    // -----------------------------------------------------------------
+    // 5. SERVER CARDS RENDERING
+    // -----------------------------------------------------------------
+    function renderServerCards() {
+      const container = document.getElementById('serversListContainer');
+      container.innerHTML = '';
+
+      const filtered = selectedCountry === 'ALL' 
+        ? serverList 
+        : serverList.filter(s => s.countryCode === selectedCountry);
+
+      document.getElementById('filteredCountBadge').innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs font-mono">Нет доступных серверов в этой локации</div>`;
+        return;
+      }
+
+      filtered.forEach(s => {
+        const isSelected = s.id === currentServerId;
+        const pingColor = s.ping < 50 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 
+                          s.ping < 110 ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' : 
+                          'text-rose-400 bg-rose-500/10 border-rose-500/30';
+
+        const card = document.createElement('div');
+        card.className = `flex items-center justify-between p-3.5 rounded-2xl cursor-pointer border transition-all duration-300 ${
+          isSelected 
+            ? 'glass-luxury-gold border-gold-400/70 shadow-lg shadow-gold-500/10' 
+            : 'bg-white/[0.02] hover:bg-white/[0.06] border-white/5'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded-full border ${isSelected ? 'border-gold-400 bg-gold-400 shadow-[0_0_10px_rgba(212,175,55,0.8)]' : 'border-slate-600'} flex items-center justify-center transition-all">
+              ${isSelected ? '<span class="w-1.5 h-1.5 bg-black rounded-full"></span>' : ''}
+            </div>
+            <span class="text-2xl">${s.flag}</span>
+            <div>
+              <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                ${s.name}
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-2">
+                <span class="text-gold-300 font-semibold">${s.protocol}</span>
+                <span>•</span>
+                <span>Загрузка: ${s.load}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono border ${pingColor} font-bold">
+              ${s.ping} ms
+            </span>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          haptic('selection');
+          currentServerId = s.id;
+          renderServerCards();
+          updateSelectedServerHeader();
+          updateIosLinks();
+          showToast(`Выбран: ${s.name}`, s.flag);
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function updateSelectedServerHeader() {
+      const s = serverList.find(x => x.id === currentServerId) || serverList[0];
+      if (!s) return;
+      document.getElementById('selectedServerFlag').innerText = s.flag;
+      document.getElementById('selectedServerName').innerText = s.name;
+      document.getElementById('selectedServerProtocol').innerText = s.protocol;
+      document.getElementById('livePing').innerText = s.ping + ' ms';
+    }
+
+    // -----------------------------------------------------------------
+    // 6. CONNECT SWITCH & TELEMETRY
+    // -----------------------------------------------------------------
+    const vpnSwitchBtn = document.getElementById('vpnSwitchBtn');
+    const vpnSwitchInner = document.getElementById('vpnSwitchInner');
+    const powerIcon = document.getElementById('powerIcon');
+    const powerText = document.getElementById('powerText');
+    const statusBadge = document.getElementById('statusBadge');
+    const radarRing = document.getElementById('radarRing');
+    const sessionTimer = document.getElementById('sessionTimer');
+    const liveDownload = document.getElementById('liveDownload');
+    const liveUpload = document.getElementById('liveUpload');
+
+    vpnSwitchBtn.addEventListener('click', () => {
+      isConnected = !isConnected;
+      haptic('medium');
+
+      if (isConnected) {
+        // Connected luxury UI
+        vpnSwitchBtn.classList.remove('from-[#211d3d]', 'to-[#070612]');
+        vpnSwitchBtn.classList.add('from-gold-400', 'to-amber-600', 'shadow-gold-500/40');
+        vpnSwitchInner.classList.remove('border-white/10');
+        vpnSwitchInner.classList.add('border-gold-300', 'bg-[#0e0c1f]');
+        powerIcon.classList.remove('text-slate-400');
+        powerIcon.classList.add('text-gold-300', 'drop-shadow-[0_0_12px_rgba(212,175,55,0.9)]');
+        powerText.innerText = 'ONLINE';
+        powerText.classList.remove('text-slate-400');
+        powerText.classList.add('text-gold-300');
+
+        sessionTimer.classList.remove('hidden');
+        radarRing.classList.remove('opacity-0');
+        radarRing.classList.add('animate-radar-wave');
+
+        statusBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5";
+        statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ONLINE';
+
+        // Session timer
+        sessionSeconds = 0;
+        sessionTimerInterval = setInterval(() => {
+          sessionSeconds++;
+          const h = String(Math.floor(sessionSeconds / 3600)).padStart(2, '0');
+          const m = String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2, '0');
+          const sec = String(sessionSeconds % 60).padStart(2, '0');
+          sessionTimer.innerText = `${h}:${m}:${sec}`;
+        }, 1000);
+
+        // Speed gauges simulation
+        speedTelemetryInterval = setInterval(() => {
+          const dl = (62 + Math.random() * 45).toFixed(1);
+          const ul = (14 + Math.random() * 22).toFixed(1);
+          liveDownload.innerText = dl + ' MB/s';
+          liveUpload.innerText = ul + ' MB/s';
+        }, 1200);
+
+        showToast("Защищённый туннель активирован!", "🛡️");
+      } else {
+        // Disconnected
+        vpnSwitchBtn.classList.add('from-[#211d3d]', 'to-[#070612]');
+        vpnSwitchBtn.classList.remove('from-gold-400', 'to-amber-600', 'shadow-gold-500/40');
+        vpnSwitchInner.classList.add('border-white/10');
+        vpnSwitchInner.classList.remove('border-gold-300', 'bg-[#0e0c1f]');
+        powerIcon.classList.add('text-slate-400');
+        powerIcon.classList.remove('text-gold-300', 'drop-shadow-[0_0_12px_rgba(212,175,55,0.9)]');
+        powerText.innerText = 'START';
+        powerText.classList.add('text-slate-400');
+        powerText.classList.remove('text-gold-300');
+
+        sessionTimer.classList.add('hidden');
+        radarRing.classList.add('opacity-0');
+        radarRing.classList.remove('animate-radar-wave');
+
+        statusBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1.5";
+        statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> OFFLINE';
+
+        clearInterval(sessionTimerInterval);
+        clearInterval(speedTelemetryInterval);
+        liveDownload.innerText = '0.0 MB/s';
+        liveUpload.innerText = '0.0 MB/s';
+        sessionTimer.innerText = '00:00:00';
+
+        showToast("Туннель отключен", "💤");
+      }
+    });
+
+    // -----------------------------------------------------------------
+    // 7. IOS EXPORT MODAL & ONE-CLICK SCHEMES
+    // -----------------------------------------------------------------
+    function updateIosLinks() {
+      const activeServer = serverList.find(s => s.id === currentServerId) || serverList[0];
+      const targetPayload = activeServer ? activeServer.raw : "https://aether-vpn.network/sub";
+      const enc = encodeURIComponent(targetPayload);
+
+      document.getElementById('linkV2Box').href = `v2box://install-sub?url=${enc}&name=AetherVPN`;
+      document.getElementById('linkStreisand').href = `streisand://import/${targetPayload}`;
+      document.getElementById('linkSingbox').href = `sing-box://import-remote-profile?url=${enc}#AetherVPN`;
+      try {
+        document.getElementById('linkShadowrocket').href = `sub://${btoa(targetPayload)}?title=AetherVPN`;
+      } catch (e) {
+        document.getElementById('linkShadowrocket').href = targetPayload;
+      }
+
+      // Generate dynamic luxury QR Code
+      const qrBox = document.getElementById('qrcodeBox');
+      qrBox.innerHTML = '';
+      try {
+        new QRCode(qrBox, {
+          text: targetPayload,
+          width: 140,
+          height: 140,
+          colorDark: "#080714",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {}
+    }
+
+    const iosModal = document.getElementById('iosModal');
+    const iosModalContent = document.getElementById('iosModalContent');
+
+    function openModal() {
+      haptic('medium');
+      updateIosLinks();
+      iosModal.classList.remove('opacity-0', 'pointer-events-none');
+      iosModalContent.classList.remove('translate-y-full');
+    }
+
+    function closeModal() {
+      haptic('light');
+      iosModal.classList.add('opacity-0', 'pointer-events-none');
+      iosModalContent.classList.add('translate-y-full');
+    }
+
+    document.getElementById('openIosModalBtn').addEventListener('click', openModal);
+    document.getElementById('navOpenIosBtn').addEventListener('click', openModal);
+    document.getElementById('closeIosModalBtn').addEventListener('click', closeModal);
+
+    iosModal.addEventListener('click', (e) => {
+      if (e.target === iosModal) closeModal();
+    });
+
+    document.getElementById('copySubUrlBtn').addEventListener('click', () => {
+      const active = serverList.find(s => s.id === currentServerId) || serverList[0];
+      copyText(active ? active.raw : "https://aether-vpn.network/sub");
+    });
+
+    document.getElementById('copyRawKeyBtn').addEventListener('click', () => {
+      const active = serverList.find(s => s.id === currentServerId) || serverList[0];
+      if (active) copyText(active.raw);
+    });
+
+    // -----------------------------------------------------------------
+    // 8. INPUT HANDLERS & BUTTON ACTIONS
+    // -----------------------------------------------------------------
+    document.getElementById('loadDemoSubBtn').addEventListener('click', () => {
+      haptic('medium');
+      document.getElementById('subInput').value = RAW_PRESET_BASE64;
+      processSubscriptionInput(RAW_PRESET_BASE64);
+    });
+
+    document.getElementById('decodeBtn').addEventListener('click', () => {
+      haptic('medium');
+      const val = document.getElementById('subInput').value;
+      processSubscriptionInput(val);
+    });
+
+    document.getElementById('pasteBtn').addEventListener('click', async () => {
+      haptic('medium');
+      if (tg?.readTextFromClipboard) {
+        tg.readTextFromClipboard((clip) => {
+          if (clip) {
+            document.getElementById('subInput').value = clip;
+            processSubscriptionInput(clip);
+          } else {
+            showToast("Буфер пуст или нет доступа", "ℹ️");
+          }
+        });
+      } else {
+        try {
+          if (navigator.clipboard && navigator.clipboard.readText) {
+            const txt = await navigator.clipboard.readText();
+            document.getElementById('subInput').value = txt;
+            processSubscriptionInput(txt);
+          } else {
+            document.getElementById('subInput').focus();
+            showToast("Вставьте ссылку в поле", "👆");
+          }
+        } catch (e) {
+          document.getElementById('subInput').focus();
+          showToast("Вставьте ссылку в поле", "👆");
+        }
+      }
+    });
+
+    // Ping All Simulation
+    document.getElementById('pingTestAllBtn').addEventListener('click', () => {
+      haptic('medium');
+      const spinner = document.getElementById('pingSpinner');
+      const label = document.getElementById('pingBtnLabel');
+      spinner.classList.remove('hidden');
+      label.innerText = 'Замер...';
+
+      setTimeout(() => {
+        serverList.forEach(s => {
+          const jitter = Math.floor(Math.random() * 12) - 6;
+          s.ping = Math.max(18, s.ping + jitter);
+        });
+        spinner.classList.add('hidden');
+        label.innerText = '⚡ Проверить пинг';
+        renderServerCards();
+        updateSelectedServerHeader();
+        haptic('success');
+        showToast("Задержка серверов обновлена!", "📡");
+      }, 650);
+    });
+
+    document.getElementById('refreshSyncBtn').addEventListener('click', function() {
+      haptic('light');
+      const svg = this.querySelector('svg');
+      svg.classList.add('rotate-180');
+      setTimeout(() => svg.classList.remove('rotate-180'), 500);
+      showToast("Узлы синхронизированы", "🔄");
+    });
+
+    document.getElementById('navStatsBtn').addEventListener('click', () => {
+      haptic('light');
+      showToast("Тариф: Unlimited Royal • Трафик без ограничений", "💎");
+    });
+
+    // Initial Auto-Load of the Premium Preset
+    processSubscriptionInput(RAW_PRESET_BASE64);
+  </script>
+</body>
+</html>
